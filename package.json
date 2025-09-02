@@ -1,19 +1,21 @@
 {
   "name": "nodejs-hw-mongodb",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Node.js homework with MongoDB, Express and Mongoose",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Berkangor/nodejs-hw-mongodb.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["nodejs", "mongodb", "express", "homework"],
+  "author": "Berkan Görmüş",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/Berkangor/nodejs-hw-mongodb/issues"
   },
@@ -29,5 +31,8 @@
     "eslint": "^9.34.0",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
