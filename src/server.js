@@ -2,9 +2,6 @@ import express from 'express';
 import pino from 'pino-http';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import routes from './routers/index.js';
-import { notFoundHandler } from './middlewars/notFoundHandler.js';
-import { errorHandler } from './middlewars/errorHandler.js';
 
 dotenv.config();
 
