@@ -11,7 +11,6 @@ export const getAllContacts = async () => {
   }
 };
 
-// ID'ye göre contact getir
 export const getContactById = async (id) => {
   if (!isValidObjectId(id)) {
     return null; 
