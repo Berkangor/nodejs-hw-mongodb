@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import contactsRouter from './routes/contacts.js';
-import { notFoudHandler } from './middlewares/notFoundHandler.js';
-import { errorHandler } from './middlewares/errorHandler.js';
+import { notFoudHandler } from './middleware/notFoundHandler.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 export const setupServer = () => {
   const app = express();
