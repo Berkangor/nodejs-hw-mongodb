@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import contactsRouter from './routes/contacts.js';
-import { notFoudHandler } from './middleware/notFoundHandler.js';
+import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 export const setupServer = () => {
@@ -12,7 +12,7 @@ export const setupServer = () => {
   
   app.use('/contacts', contactsRouter);
 
-  app.use(notFoudHandler);
+  app.use(notFoundHandler);
   app.use(errorHandler);
 
   const PORT = Number(process.env.PORT) || 3000;
