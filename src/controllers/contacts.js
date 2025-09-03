@@ -1,5 +1,5 @@
 import {
-  listContacts,         
+  listContacts,
   getContactById,
   createContact,
   updateContact,
@@ -10,22 +10,24 @@ import createHttpError from 'http-errors';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseContactFilter } from '../utils/parseContactFilter.js';
+import { contactFields } from '../db/models/contacts.js'; // contactFields bu dosyadan export edilmeli
 
-
-import { contactFields } from '../db/models/contact.js';
-
+/**
+ * GET /contacts
+ * Query: page, perPage, sortBy, sortOrder, type, isFavourite
+ */
 export const getContactsController = async (req, res, next) => {
   try {
     const { page, perPage } = parsePaginationParams(req.query);
     const { sortBy, sortOrder } = parseSortParams(req.query, contactFields);
-    const filters = parseContactFilter(req.query);
+    const filters = parseContactFilter(req.query); // örn: { contactType, isFavourite }
 
     const data = await listContacts({ page, perPage, sortBy, sortOrder, ...filters });
 
     return res.status(200).json({
       status: 200,
       message: 'Successfully found contacts!',
-      data, 
+      data, // { data, page, perPage, totalItems, totalPages, hasPreviousPage, hasNextPage }
     });
   } catch (err) {
     return next(err);
