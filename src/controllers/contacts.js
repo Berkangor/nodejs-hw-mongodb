@@ -12,7 +12,7 @@ import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseContactFilter } from '../utils/parseContactFilter.js';
 
 
-import { contactFields } from '../db/models/contact.js';
+import { contactFields } from '../db/models/contacts.js';
 
 export const getContactsController = async (req, res, next) => {
   try {
