@@ -10,7 +10,7 @@ const contactSchema = new Schema(
       type: String,
       enum: ['work', 'home', 'personal'],
       required: true,
-      default: 'personal', 
+      default: 'personal',
     },
   },
   {
@@ -19,5 +19,15 @@ const contactSchema = new Schema(
   }
 );
 
-const ContactCollection = model('Contact', contactSchema); 
-export default ContactCollection;
+export const contactFields = [
+  'name',
+  'phoneNumber',
+  'email',
+  'isFavourite',
+  'contactType',
+  'createdAt',
+  'updatedAt',
+];
+
+const Contact = model('Contact', contactSchema);
+export default Contact;
