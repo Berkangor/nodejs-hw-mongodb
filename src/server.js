@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import contactsRouter from './routers/contacts.js';
+import contactsRouter from './routes/contacts.js';
 import { notFoudHandler } from './middlewares/notFoundHandler.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
