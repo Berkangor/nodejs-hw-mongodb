@@ -8,7 +8,6 @@ export const errorHandler = (err, req, res, _next) => {
     });
   }
 
-  // Beklenmeyen hatalar
   console.error('Unhandled Error:', err);
   return res.status(500).json({
     status: 500,

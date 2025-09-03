@@ -3,13 +3,11 @@ import {
   getContactById,
   createContact,
   updateContact,
-  deleteContact, // ✅ delete işlemi için service'i ekledik
+  deleteContact, 
 } from '../services/contacts.js';
 import createHttpError from 'http-errors';
 
-/**
- * GET /contacts
- */
+
 export const getAllContactsController = async (_req, res, next) => {
   try {
     const contacts = await getAllContacts();
@@ -19,13 +17,11 @@ export const getAllContactsController = async (_req, res, next) => {
       data: contacts,
     });
   } catch (error) {
-    return next(error); // ✅ global error handler'a bırak
+    return next(error); 
   }
 };
 
-/**
- * GET /contacts/:contactId
- */
+
 export const getContactByIdController = async (req, res, next) => {
   const { contactId } = req.params;
 
@@ -45,9 +41,7 @@ export const getContactByIdController = async (req, res, next) => {
   }
 };
 
-/**
- * POST /contacts
- */
+
 export const createContactController = async (req, res, next) => {
   try {
     const payload = req.body;
@@ -67,9 +61,7 @@ export const createContactController = async (req, res, next) => {
   }
 };
 
-/**
- * DELETE /contacts/:contactId
- */
+
 export const deleteContactController = async (req, res, next) => {
   const { contactId } = req.params;
 
@@ -79,16 +71,12 @@ export const deleteContactController = async (req, res, next) => {
       return next(createHttpError(404, 'Contact not found'));
     }
 
-    // 204 No Content: body gönderme
     return res.status(204).end();
   } catch (error) {
     return next(error);
   }
 };
 
-/**
- * PATCH/PUT /contacts/:contactId
- */
 export const updateContactController = async (req, res, next) => {
   const { contactId } = req.params;
 
