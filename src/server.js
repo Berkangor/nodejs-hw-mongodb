@@ -2,28 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import { env } from './utils/env.js';
 
-// Controller'lar
-import {
-  getAllContactsController,
-  getContactByIdController,
-  createContactController,
-  updateContactController,
-  deleteContactController,
-} from './controllers/contacts.js';
-
-// Global hata yakalayıcı (http-errors ile uyumlu)
-import { errorHandler } from './middlewares/errorHandler.js';
+import { getAllContacts, getContactById } from './services/contacts.js';
 
 const PORT = Number(env('PORT', 3000));
 
 export const setupServer = () => {
   const app = express();
 
-  // Middleware
   app.use(express.json());
   app.use(cors());
 
-  // Health check
+  // Health check (opsiyonel ama faydalı)
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok' });
   });
@@ -33,20 +22,56 @@ export const setupServer = () => {
     res.json({ message: 'Welcome to the Contacts API' });
   });
 
-  // Contacts routes
-  app.get('/contacts', getAllContactsController);
-  app.get('/contacts/:contactId', getContactByIdController);
-  app.post('/contacts', createContactController);
-  app.patch('/contacts/:contactId', updateContactController);
-  app.delete('/contacts/:contactId', deleteContactController);
+  // GET /contacts
+  app.get('/contacts', async (_req, res, next) => {
+    try {
+      const contacts = await getAllContacts();
+      res.status(200).json({
+        status: 200,
+        message: 'Successfully found contacts!',
+        data: contacts,
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
 
-  // 404 handler — (Express 5'te '*' kullanma)
+  // GET /contacts/:contactId
+  app.get('/contacts/:contactId', async (req, res, next) => {
+    try {
+      const { contactId } = req.params;
+      const contact = await getContactById(contactId);
+
+      if (!contact) {
+        return res.status(404).json({
+          status: 404,
+          message: 'Contact not found',
+        });
+      }
+
+      res.status(200).json({
+        status: 200,
+        message: `Successfully found contact with id ${contactId}!`,
+        data: contact,
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // 404 handler — Express 5'te '*' kullanma
   app.use((req, res) => {
     res.status(404).json({ message: 'Not found' });
   });
 
-  // Global error handler (en sonda)
-  app.use(errorHandler);
+  // Global error handler (en sonda kalmalı)
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, _req, res, _next) => {
+    console.error('Unhandled error:', err);
+    res.status(err.status || 500).json({
+      message: err.message || 'Internal Server Error',
+    });
+  });
 
   // Render uyumu için 0.0.0.0'a bind et
   const server = app.listen(PORT, '0.0.0.0', () => {
