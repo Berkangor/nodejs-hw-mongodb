@@ -1,6 +1,5 @@
-// src/controllers/contacts.js
 import {
-  listContacts,         // ✅ pagination/sort/filter
+  listContacts,         
   getContactById,
   createContact,
   updateContact,
@@ -12,13 +11,9 @@ import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseContactFilter } from '../utils/parseContactFilter.js';
 
-// Eğer alan listesini burada kullanıyorsan, model dosyana göre yol/veri adını düzelt
-// Örn: export const contactFields = ['name','createdAt','updatedAt'];
+
 import { contactFields } from '../db/models/contact.js';
 
-/**
- * GET /contacts  (hw4: pagination + sorting + optional filters)
- */
 export const getContactsController = async (req, res, next) => {
   try {
     const { page, perPage } = parsePaginationParams(req.query);
@@ -30,7 +25,7 @@ export const getContactsController = async (req, res, next) => {
     return res.status(200).json({
       status: 200,
       message: 'Successfully found contacts!',
-      data, // { data, page, perPage, totalItems, totalPages, hasPreviousPage, hasNextPage }
+      data, 
     });
   } catch (err) {
     return next(err);

@@ -7,8 +7,8 @@ import {
   updateContactController,
   deleteContactController,
 } from '../controllers/contacts.js';
-import { validateBody } from '../middlewares/validateBody.js';
-import { isValidId } from '../middlewares/isValidId.js';
+import { validateBody } from '../middleware/validateBody.js';
+import { isValidId } from '../middleware/isValidId.js';
 import { createContactSchema, updateContactSchema } from '../validations/contactSchemas.js';
 
 const router = express.Router();
