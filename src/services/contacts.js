@@ -1,28 +1,33 @@
 import { isValidObjectId } from 'mongoose';
-import ContactCollection from '../db/models/contacts.js';
+import ContactCollection from '../db/models/contacts.js'; 
 
-// Tüm contact’ları getir
+
 export const getAllContacts = async () => {
-  try {
-    const contacts = await ContactCollection.find();
-    return contacts; // Boş array olabilir ama hiçbir zaman null olmaz
-  } catch (error) {
-    console.error('Error in getAllContacts:', error);
-    throw error; // Hatanın controller’a gitmesi daha iyi olur
-  }
+  return ContactCollection.find(); 
 };
 
-// ID'ye göre contact getir
-export const getContactById = async (id) => {
-  if (!isValidObjectId(id)) {
-    return null; // Geçersiz ObjectId ise direkt null döner
-  }
 
-  try {
-    const contact = await ContactCollection.findById(id);
-    return contact; // Bulunmazsa mongoose zaten null döner
-  } catch (error) {
-    console.error('Error in getContactById:', error);
-    throw error; // Hata fırlatılır, controller yakalar
-  }
+export const getContactById = async (id) => {
+  if (!isValidObjectId(id)) return null; 
+  return ContactCollection.findById(id); 
+};
+
+
+export const createContact = async (payload) => {
+  return ContactCollection.create(payload);
+};
+
+
+export const updateContact = async (id, payload) => {
+  if (!isValidObjectId(id)) return null;
+
+  return ContactCollection.findByIdAndUpdate(id, payload, {
+    new: true,          
+    runValidators: true 
+  }); // bulunamazsa null
+};
+
+export const deleteContact = async (id) => {
+  if (!isValidObjectId(id)) return null;
+  return ContactCollection.findByIdAndDelete(id); // bulunamazsa null
 };

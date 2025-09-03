@@ -5,13 +5,17 @@ const contactSchema = new Schema(
     name: {
       type: String,
       required: true,
+      trim: true, // boşlukları temizlemek için
     },
     phoneNumber: {
       type: String,
       required: true,
+      trim: true,
     },
     email: {
       type: String,
+      trim: true,
+      lowercase: true,
     },
     isFavourite: {
       type: Boolean,
@@ -21,14 +25,14 @@ const contactSchema = new Schema(
       type: String,
       enum: ['work', 'home', 'personal'],
       required: true,
-      default: 'personel',
+      default: 'personal', 
     },
   },
   {
-    timestamps: true,
-    versionKey: false,
+    timestamps: true, // createdAt, updatedAt otomatik eklenecek
+    versionKey: false, // __v kaldırıldı
   }
 );
 
-const ContactCollection = model('contacts', contactSchema);
+const ContactCollection = model('Contact', contactSchema); 
 export default ContactCollection;
