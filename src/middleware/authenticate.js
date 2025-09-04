@@ -1,10 +1,10 @@
 import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
-import { getEnvVar } from '../utils/env.js';
+import { env } from '../utils/env.js';
 import { User } from '../db/models/user.js';
 import { Session } from '../db/models/session.js';
 
-const JWT_SECRET = getEnvVar('JWT_SECRET');
+const JWT_SECRET = env('JWT_SECRET');
 
 export const authenticate = async (req, res, next) => {
   const authHeader = req.get('Authorization');
