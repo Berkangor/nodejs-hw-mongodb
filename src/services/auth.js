@@ -3,10 +3,10 @@ import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
 import { User } from '../db/models/user.js';
 import { Session } from '../db/models/session.js';
-import { getEnvVar } from '../utils/env.js';
+import { env } from '../utils/env.js';
 
-const JWT_SECRET = getEnvVar('JWT_SECRET');
-const JWT_REFRESH_SECRET = getEnvVar('JWT_REFRESH_SECRET');
+const JWT_SECRET = env('JWT_SECRET');
+const JWT_REFRESH_SECRET = env('JWT_REFRESH_SECRET');
 
 export const registerUser = async (payload) => {
   const userExists = await User.findOne({ email: payload.email });
