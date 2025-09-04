@@ -3,6 +3,7 @@ import cors from 'cors';
 import contactsRouter from './routes/contacts.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import router from './routes/index.js';
 
 export const setupServer = () => {
   const app = express();
@@ -11,6 +12,9 @@ export const setupServer = () => {
   app.use(express.json());
   
   app.use('/contacts', contactsRouter);
+    
+
+  app.use(router);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
