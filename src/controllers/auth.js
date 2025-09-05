@@ -75,5 +75,12 @@ export const logoutUserController = async (req, res) => {
   res.clearCookie('sessionId', { path: '/' });
   res.clearCookie('refreshToken', { path: '/' });
 
-  res.status(204).end();
+    res.status(204).end();
+    
+};
+export {
+  registerUserController as registerController,
+  loginUserController    as loginController,
+  refreshUserController  as refreshController,
+  logoutUserController   as logoutController,
 };
