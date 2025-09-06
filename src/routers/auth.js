@@ -1,4 +1,3 @@
-// src/routers/auth.js
 import { Router } from 'express';
 import { validateBody } from '../middlewares/validateBody.js';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';

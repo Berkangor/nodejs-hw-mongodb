@@ -21,7 +21,6 @@ export const registerUser = async (payload) => {
     const { password, ...safe } = doc.toObject(); // şifreyi dışarı verme
     return safe;
   } catch (e) {
-    // Eşzamanlı race durumunda Mongo duplicate hatasını yine yakala
     if (e?.code === 11000) throw createHttpError(409, 'Email in use');
     throw e;
   }
@@ -49,20 +48,18 @@ export const loginUser = async ({ email, password }) => {
     refreshTokenValidUntil: new Date(now + REFRESH_TTL_MS),
   });
 
-  // Controller ile net eşleşsin
   return { session, accessToken, refreshToken };
 };
 
 export const refreshSession = async ({ sessionId, refreshToken }) => {
-  // Token geçerli mi? (süre/şifre kontrolü)
-  let payload;
+  // Refresh token geçerli mi?
   try {
-    payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+    jwt.verify(refreshToken, JWT_REFRESH_SECRET);
   } catch {
     throw createHttpError(401, 'Unauthorized');
   }
 
-  // Eski oturum var mı ve bu token o oturuma ait mi?
+  // Bu token bu session'a mı ait?
   const session = await Session.findOne({ _id: sessionId, refreshToken });
   if (!session) throw createHttpError(401, 'Session not found');
 

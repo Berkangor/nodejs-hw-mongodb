@@ -1,30 +1,12 @@
 import { Schema, model } from 'mongoose';
 
-export const contactFields = [
-  'name',
-  'phoneNumber',
-  'email',
-  'isFavourite',
-  'contactType',
-  'createdAt',
-  'updatedAt',
-];
-
 const contactSchema = new Schema(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-      index: true,
-    },
-
-    name: { type: String, required: true, trim: true },
-    phoneNumber: { type: String, required: true, trim: true },
-    email: { type: String, trim: true, lowercase: true },
-
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // ← ZORUNLU
+    name: { type: String, required: true },
+    phoneNumber: { type: String, required: true },
+    email: { type: String },
     isFavourite: { type: Boolean, default: false },
-
     contactType: {
       type: String,
       enum: ['work', 'home', 'personal'],
@@ -38,7 +20,15 @@ const contactSchema = new Schema(
   }
 );
 
-contactSchema.index({ userId: 1, name: 1 });
+export const contactFields = [
+  'name',
+  'phoneNumber',
+  'email',
+  'isFavourite',
+  'contactType',
+  'createdAt',
+  'updatedAt',
+];
 
 const Contact = model('Contact', contactSchema);
 export default Contact;

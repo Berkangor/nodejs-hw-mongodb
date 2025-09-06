@@ -18,21 +18,24 @@ export const authenticate = async (req, _res, next) => {
   }
 
   try {
-    // 1) JWT doğrulama
+    // 1) JWT doğrula
     const { id } = jwt.verify(token, JWT_SECRET);
 
-    // 2) Session bu access token için var mı?
+    // 2) Bu accessToken için aktif session var mı?
     const session = await Session.findOne({ accessToken: token });
     if (!session) {
       return next(createHttpError(401, 'Session not found.'));
     }
 
-    // 3) Access token süresi dolmuş mu? (ödev gereği explicit kontrol)
-    if (session.accessTokenValidUntil && session.accessTokenValidUntil.getTime() <= Date.now()) {
+    // 3) Access token süresi dolmuş mu? (ödev gereği)
+    if (
+      session.accessTokenValidUntil &&
+      session.accessTokenValidUntil.getTime() <= Date.now()
+    ) {
       return next(createHttpError(401, 'Access token expired'));
     }
 
-    // 4) Kullanıcı var mı?
+    // 4) Kullanıcı mevcut mu?
     const user = await User.findById(id);
     if (!user) {
       return next(createHttpError(401, 'User not found.'));
