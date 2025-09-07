@@ -6,7 +6,7 @@ import { Session } from '../db/models/session.js';
 
 const JWT_SECRET = env('JWT_SECRET');
 
-export const authenticate = async (req, res, next) => {
+export const authenticate = async (req, _res, next) => {
   const authHeader = req.get('Authorization');
   if (!authHeader) {
     return next(createHttpError(401, 'Authorization header is not found!'));
@@ -18,20 +18,35 @@ export const authenticate = async (req, res, next) => {
   }
 
   try {
+    // 1) JWT doğrula
     const { id } = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(id);
-    if (!user) {
-      return next(createHttpError(401, 'User not found.'));
-    }
 
+    // 2) Bu accessToken için aktif session var mı?
     const session = await Session.findOne({ accessToken: token });
     if (!session) {
       return next(createHttpError(401, 'Session not found.'));
     }
 
+    // 3) Access token süresi dolmuş mu? (ödev gereği)
+    if (
+      session.accessTokenValidUntil &&
+      session.accessTokenValidUntil.getTime() <= Date.now()
+    ) {
+      return next(createHttpError(401, 'Access token expired'));
+    }
+
+    // 4) Kullanıcı mevcut mu?
+    const user = await User.findById(id);
+    if (!user) {
+      return next(createHttpError(401, 'User not found.'));
+    }
+
     req.user = user;
-    next();
-  } catch (error) {
-    return next(createHttpError(401, 'Access token expired or is invalid.'));
+    return next();
+  } catch (err) {
+    if (err?.name === 'TokenExpiredError') {
+      return next(createHttpError(401, 'Access token expired'));
+    }
+    return next(createHttpError(401, 'Unauthorized'));
   }
 };

@@ -1,39 +1,33 @@
 import Contact from '../db/models/contact.js';
 
 export const listContacts = async ({
+  userId,
   page = 1,
   perPage = 10,
   sortBy = 'name',
   sortOrder = 'asc',
-  userId,
-  ...filters // parseContactFilter: { contactType, isFavourite } vb.
+  contactType,
+  isFavourite,
 }) => {
-  const filter = { userId, ...filters };
+  const filter = { userId }; // ← sadece kendi kayıtları
+  if (contactType) filter.contactType = contactType;
+  if (typeof isFavourite === 'boolean') filter.isFavourite = isFavourite;
 
   const totalItems = await Contact.countDocuments(filter);
-
-  const totalPages =
-    totalItems === 0 ? 0 : Math.ceil(totalItems / Number(perPage || 10));
-
-  const safePage = totalPages === 0
-    ? 1
-    : Math.min(Math.max(Number(page) || 1, 1), totalPages);
-
-  const limit = Number(perPage) || 10;
-  const skip = (safePage - 1) * limit;
+  const totalPages = totalItems === 0 ? 0 : Math.ceil(totalItems / perPage);
+  const safePage = totalPages === 0 ? 1 : Math.min(Math.max(Number(page), 1), totalPages);
+  const skip = (safePage - 1) * Number(perPage);
 
   const sortDir = sortOrder === 'desc' ? -1 : 1;
-
   const data = await Contact.find(filter)
     .sort({ [sortBy]: sortDir })
     .skip(skip)
-    .limit(limit)
-    .lean();
+    .limit(Number(perPage));
 
   return {
     data,
     page: safePage,
-    perPage: limit,
+    perPage: Number(perPage),
     totalItems,
     totalPages,
     hasPreviousPage: safePage > 1,
@@ -41,29 +35,24 @@ export const listContacts = async ({
   };
 };
 
-export const getAllContacts = async ({ userId }) => {
-  return Contact.find({ userId }).lean();
+export const getContactById = async (contactId, userId) => {
+  return Contact.findOne({ _id: contactId, userId });
 };
 
-export const getContactById = async ({ id, userId }) => {
-  return Contact.findOne({ _id: id, userId }).lean();
+export const createContact = async (payload, userId) => {
+  const doc = new Contact({ ...payload, userId });
+  return doc.save();
 };
 
-export const createContact = async (dto) => {
-  // controller: { ...req.body, userId: req.user._id } gönderiyor
-  const doc = await Contact.create(dto);
-  return doc.toObject();
-};
-
-export const updateContact = async ({ id, userId, dto }) => {
+export const updateContact = async (contactId, payload, userId) => {
   return Contact.findOneAndUpdate(
-    { _id: id, userId },
-    dto,
+    { _id: contactId, userId },
+    payload,
     { new: true, runValidators: true }
-  ).lean();
+  );
 };
 
-export const deleteContact = async ({ id, userId }) => {
-  const res = await Contact.deleteOne({ _id: id, userId });
+export const deleteContact = async (contactId, userId) => {
+  const res = await Contact.deleteOne({ _id: contactId, userId });
   return res.deletedCount > 0;
 };
