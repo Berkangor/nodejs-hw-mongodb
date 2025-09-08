@@ -1,15 +1,12 @@
-import { setupServer } from './server.js';
-import initMongoConnection from './db/initMongoConnection.js'; // ✅ default import
+import { initMongoDB } from './db/initMongoConnection.js';
+import { startServer } from './server.js';
 
-const bootstrap = async () => {
-  try {
-    await initMongoConnection();
-    setupServer();
-    console.log('🚀 Server started successfully');
-  } catch (error) {
-    console.error('❌ Failed to start application:', error);
-    process.exit(1);
-  }
-};
+await initMongoDB();
+startServer(); //because of new version of NODE.JS
 
-bootstrap();
+// const bootstrap = async () => {
+//   await initMongoDB();
+//   startServer();
+// };
+
+// bootstrap();
