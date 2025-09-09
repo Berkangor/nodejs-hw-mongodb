@@ -1,19 +1,25 @@
-import joi from 'joi';
+import Joi from 'joi';
 
-export const createContactSchema = joi.object({
-  name: joi.string().min(3).max(20).required(),
-  phoneNumber: joi.string().min(3).max(20).required(),
-  email: joi.string().email().min(3).max(20),
-  isFavourite: joi.boolean().optional(),
-  contactType: joi.string().valid('personal', 'work', 'home').required(),
+export const createContactSchema = Joi.object({
+  name: Joi.string().min(3).max(20).required(),
+  phoneNumber: Joi.string().min(3).max(20).required(),
+  email: Joi.string().email().required(),
+  isFavourite: Joi.boolean(),
+  contactType: Joi.string().valid('work', 'home', 'personal').required(),
 });
 
-export const updateContactSchema = joi
-  .object({
-    name: joi.string().min(3).max(20).optional(),
-    phoneNumber: joi.string().min(3).max(20).optional(),
-    email: joi.string().email().min(3).max(20).optional(),
-    isFavourite: joi.boolean().optional(),
-    contactType: joi.string().valid('personal', 'work', 'home').optional(),
-  })
-  .min(1);
+export const updateContactSchema = Joi.object({
+  name: Joi.string().min(3).max(20),
+  phoneNumber: Joi.string().min(3).max(20),
+  email: Joi.string().email(),
+  isFavourite: Joi.boolean(),
+  contactType: Joi.string().valid('work', 'home', 'personal'),
+}).min(1);
+
+export const upsertContactSchema = Joi.object({
+  name: Joi.string().min(3).max(20).required(),
+  phoneNumber: Joi.string().min(3).max(20).required(),
+  email: Joi.string().email().required(),
+  isFavourite: Joi.boolean().required(),
+  contactType: Joi.string().valid('work', 'home', 'personal').required(),
+});

@@ -16,7 +16,7 @@ import {
   createContactSchema,
   updateContactSchema,
   upsertContactSchema,
-} from '../schemas/contacts.js';
+} from '../validation/contactsSchemas.js';
 
 const router = Router();
 
