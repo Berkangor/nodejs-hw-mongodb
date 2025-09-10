@@ -70,3 +70,4 @@ export const deleteContact = async (contactId, userId) => {
   const res = await Contact.deleteOne({ _id: contactId, userId });
   return res.deletedCount > 0;
 };
+export { updateContact as patchContact };
