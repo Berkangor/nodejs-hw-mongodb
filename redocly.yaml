@@ -1,16 +1,21 @@
-# See https://redocly.com/docs/cli/configuration/
+# redocly.yaml
 apis:
   sample@v1:
     root: docs/openapi.yaml
+
 extends:
   - recommended
+
 rules:
   no-unused-components: error
-theme:
+
+# Bunlar UI (preview/build-docs) tarafına ait ayarlar
+referenceDocs:
   htmlTemplate: ./docs/index.html
-  colors:
-    primary:
-      main: '#32329f'
+  theme:
+    colors:
+      primary:
+        main: '#32329f'
   generateCodeSamples:
     languages:
       - lang: curl
