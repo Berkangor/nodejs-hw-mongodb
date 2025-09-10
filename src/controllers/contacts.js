@@ -1,147 +1,128 @@
 import createHttpError from 'http-errors';
-
+import { parsePaginationParams } from '../utils/parsePaginationParams.js';
+import { parseSortParams } from '../utils/parseSortParams.js';
+import { parseFilterParams } from '../utils/parseFilterParams.js';
 import {
   listContacts,
   getContactById,
   createContact,
-  updateContact,
   deleteContact,
+  upsertContact,
+  patchContact,
 } from '../services/contacts.js';
+import { uploadBufferToCloudinary } from '../services/cloudinary.js';
+import {
+  createContactSchema,
+  updateContactSchema,
+} from '../validation/contacts.js';
 
-import { parsePaginationParams } from '../utils/parsePaginationParams.js';
-import { parseSortParams } from '../utils/parseSortParams.js';
-import { parseContactFilter } from '../utils/parseContactFilter.js';
-import { contactFields } from '../db/models/contact.js'; // modelden export edilmeli
+export const getContactsController = async (req, res) => {
+  const { page, perPage } = parsePaginationParams(req.query);
+  const { sortBy, sortOrder } = parseSortParams(req.query);
+  const filter = parseFilterParams(req.query);
+  const userId = req.user._id;
 
-/**
- * GET /contacts
- * Query: page, perPage, sortBy, sortOrder, type, isFavourite, ...
- * Tüm sonuçlar oturum sahibine (req.user._id) göre filtrelenir.
- */
-export const getContactsController = async (req, res, next) => {
-  try {
-    const { page, perPage } = parsePaginationParams(req.query);
-    const { sortBy, sortOrder } = parseSortParams(req.query, contactFields);
-    const filters = parseContactFilter(req.query);
+  const contacts = await listContacts({
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+    filter,
+    userId,
+  });
 
-    const result = await listContacts({
-      page,
-      perPage,
-      sortBy,
-      sortOrder,
-      userId: req.user._id,
-      ...filters,
-    });
-
-    return res.status(200).json({
-      status: 200,
-      message: 'Successfully found contacts!',
-      data: result, // { data, page, perPage, totalItems, totalPages, hasPreviousPage, hasNextPage }
-    });
-  } catch (err) {
-    return next(err);
-  }
+  res.status(200).json({
+    status: 200,
+    message: 'Successfully found contacts!',
+    data: contacts,
+  });
 };
 
-/**
- * GET /contacts/:contactId
- * Yalnızca sahibinin kaydını getirir.
- */
-export const getContactByIdController = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
+export const getContactByIdController = async (req, res) => {
+  const { contactId } = req.params;
+  const userId = req.user._id;
+  const contact = await getContactById(contactId, userId);
 
-    const data = await getContactById({
-      id: contactId,
-      userId: req.user._id,
-    });
-
-    if (!data) {
-      return next(createHttpError(404, 'Contact not found'));
-    }
-
-    return res.status(200).json({
-      status: 200,
-      message: `Successfully found contact with id ${contactId}!`,
-      data,
-    });
-  } catch (err) {
-    return next(err);
+  if (!contact) {
+    throw createHttpError(404, 'Contact not found');
   }
+
+  res.status(200).json({
+    status: 200,
+    message: `Successfully found contact with id ${contactId}!`,
+    data: contact,
+  });
 };
 
-/**
- * POST /contacts
- * Yeni kayıt, otomatik olarak oturum sahibine atanır (userId).
- */
 export const createContactController = async (req, res, next) => {
-  try {
-    const created = await createContact({
-      ...req.body,
-      userId: req.user._id,
-    });
-
-    if (!created) {
-      return next(createHttpError(400, 'Contact creation failed'));
-    }
-
-    return res.status(201).json({
-      status: 201,
-      message: 'Contact created successfully!',
-      data: created,
-    });
-  } catch (err) {
-    return next(err);
+  // Handle photo upload via Cloudinary
+  if (req.file) {
+    const url = await uploadBufferToCloudinary(req.file.buffer, `contacts/${req.user._id}`);
+    if (url) req.body.photo = url;
   }
+
+  const { error } = createContactSchema.validate(req.body);
+
+  if (error) {
+    return next(error);
+  }
+  const userId = req.user._id;
+
+  const contact = await createContact(req.body, userId);
+  res.status(201).json({
+    status: 201,
+    message: 'Successfully created a contact!',
+    data: contact,
+  });
 };
 
-/**
- * PATCH /contacts/:contactId
- * Sadece sahibinin kaydı güncellenir.
- */
-export const updateContactController = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
+export const deleteContactController = async (req, res) => {
+  const { contactId } = req.params;
+  const userId = req.user._id;
+  const contact = await deleteContact(contactId, userId);
 
-    const updated = await updateContact({
-      id: contactId,
-      userId: req.user._id,
-      dto: req.body,
-    });
-
-    if (!updated) {
-      return next(createHttpError(404, 'Contact not found'));
-    }
-
-    return res.status(200).json({
-      status: 200,
-      message: `Successfully updated contact with id ${contactId}!`,
-      data: updated,
-    });
-  } catch (err) {
-    return next(err);
+  if (!contact) {
+    throw createHttpError(404, 'Contact not found');
   }
+
+  res.status(204).send();
 };
 
-/**
- * DELETE /contacts/:contactId
- * Sadece sahibinin kaydı silinir.
- */
-export const deleteContactController = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
+export const upsertContactController = async (req, res) => {
+  const { contactId } = req.params;
+  const userId = req.user._id;
+  const contact = await upsertContact(contactId, req.body, userId);
 
-    const deleted = await deleteContact({
-      id: contactId,
-      userId: req.user._id,
-    });
+  const status = contact ? 200 : 201;
+  const message = contact
+    ? `Successfully updated contact with id ${contactId}!`
+    : `Successfully created a contact with id ${contactId}!`;
 
-    if (!deleted) {
-      return next(createHttpError(404, 'Contact not found'));
-    }
+  res.status(status).json({
+    status: status,
+    message: message,
+    data: contact,
+  });
+};
 
-    return res.status(204).end();
-  } catch (err) {
-    return next(err);
+export const patchContactController = async (req, res, next) => {
+  const { contactId } = req.params;
+
+  const { error } = updateContactSchema.validate(req.body);
+
+  if (error) {
+    return next(error);
   }
+  const userId = req.user._id;
+  const contact = await patchContact(contactId, req.body, userId);
+
+  if (!contact) {
+    throw createHttpError(404, 'Contact not found');
+  }
+
+  res.status(200).json({
+    status: 200,
+    message: `Successfully patched contact with id ${contactId}!`,
+    data: contact,
+  });
 };

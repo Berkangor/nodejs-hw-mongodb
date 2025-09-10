@@ -2,33 +2,41 @@ import { Schema, model } from 'mongoose';
 
 const contactSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // ← ZORUNLU
-    name: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
-    email: { type: String },
-    isFavourite: { type: Boolean, default: false },
+    name: {
+      type: String,
+      required: true,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    isFavourite: {
+      type: Boolean,
+      default: false,
+    },
     contactType: {
       type: String,
       enum: ['work', 'home', 'personal'],
       required: true,
       default: 'personal',
     },
+    photo: {
+      type: String,
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: 'users',
+    },
   },
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
-export const contactFields = [
-  'name',
-  'phoneNumber',
-  'email',
-  'isFavourite',
-  'contactType',
-  'createdAt',
-  'updatedAt',
-];
-
-const Contact = model('Contact', contactSchema);
-export default Contact;
+export const contactsCollection = model('Contact', contactSchema);

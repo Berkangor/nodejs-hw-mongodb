@@ -1,27 +1,34 @@
 import express from 'express';
 import cors from 'cors';
+import pino from 'pino-http';
 import cookieParser from 'cookie-parser';
+import { getEnvVar } from './utils/getEnvVar.js';
+import rootRouter from './routers/index.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+import { notFoundHandler } from './middlewares/notFoundHandler.js';
 
-import apiRouter from './routers/index.js';
-import { notFoundHandler } from '../src/middlewares/notFoundHandler.js';
-import { errorHandler } from '../src/middlewares/errorHandler.js';
+const PORT = Number(getEnvVar('PORT', '3000'));
 
-export const setupServer = () => {
+export const startServer = () => {
   const app = express();
 
-  app.use(cors({ origin: true, credentials: true }));
   app.use(express.json());
+  app.use(cors());
   app.use(cookieParser());
 
-  app.get('/health', (_req, res) => res.json({ ok: true }));
+  app.use(
+    pino({
+      transport: {
+        target: 'pino-pretty',
+      },
+    }),
+  );
 
-  // Tüm rotaları tek yerden bağla
-  app.use('/', apiRouter);
+  app.use(rootRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
 
-  const PORT = Number(process.env.PORT) || 3000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });

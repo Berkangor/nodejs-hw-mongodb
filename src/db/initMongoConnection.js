@@ -1,40 +1,28 @@
 import mongoose from 'mongoose';
-import { env } from '../utils/env.js';
+import { getEnvVar } from '../utils/getEnvVar.js';
+import { ENV_VARS } from '../constants/envVars.js';
 
-const initMongoConnection = async () => {
-  const MONGODB_USER = env('MONGODB_USER');
-  const MONGODB_PASSWORD = env('MONGODB_PASSWORD');
-  const MONGODB_URL = env('MONGODB_URL'); 
-  const MONGODB_DB = env('MONGODB_DB');   
-
-  const mongoUri = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_URL}/?retryWrites=true&w=majority`;
-
+export const initMongoDB = async () => {
   try {
-    await mongoose.connect(mongoUri, {
-      dbName: MONGODB_DB,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    });
+    mongoose.set('strictQuery', true);
 
-    console.log(`✅ MongoDB connection established to DB: ${MONGODB_DB}`);
+    // Öncelik: tek satır URI varsa onu kullan
+    const inlineUri = process.env.MONGODB_URI;
 
-    mongoose.connection.on('error', (err) => {
-      console.error('❌ MongoDB error:', err);
-    });
+    let uri = inlineUri;
+    if (!uri) {
+      const user = getEnvVar(ENV_VARS.MONGODB_USER);
+      const pwd  = getEnvVar(ENV_VARS.MONGODB_PASSWORD);
+      const url  = getEnvVar(ENV_VARS.MONGODB_URL);
+      const db   = getEnvVar(ENV_VARS.MONGODB_DB);
 
-    mongoose.connection.on('disconnected', () => {
-      console.warn('⚠️ MongoDB disconnected');
-    });
+      uri = `mongodb+srv://${encodeURIComponent(user)}:${encodeURIComponent(pwd)}@${url}/${db}?retryWrites=true&w=majority`;
+    }
 
-    process.on('SIGINT', async () => {
-      await mongoose.connection.close();
-      console.log('MongoDB connection closed due to app termination');
-      process.exit(0);
-    });
+    await mongoose.connect(uri /* , { serverSelectionTimeoutMS: 10000 } */);
+    console.log('Mongo connection successfully established!');
   } catch (error) {
-    console.error('❌ Error connecting to MongoDB:', error);
+    console.log('Error while setting up mongo connection', error);
     throw error;
   }
 };
-
-export default initMongoConnection;

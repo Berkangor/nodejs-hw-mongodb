@@ -1,15 +1,19 @@
-import { setupServer } from './server.js';
-import initMongoConnection from './db/initMongoConnection.js'; // ✅ default import
+import 'dotenv/config';
+import { initMongoDB } from './db/initMongoConnection.js';
+import { startServer } from './server.js';
 
-const bootstrap = async () => {
-  try {
-    await initMongoConnection();
-    setupServer();
-    console.log('🚀 Server started successfully');
-  } catch (error) {
-    console.error('❌ Failed to start application:', error);
-    process.exit(1);
-  }
-};
+try {
+  await initMongoDB();
+  startServer(); // HTTP server'ı başlatır
+} catch (e) {
+  console.error('Failed to start server:', e);
+  process.exit(1);
+}
 
-bootstrap();
+// (opsiyonel) Process-level güvenlik
+process.on('unhandledRejection', (err) => {
+  console.error('unhandledRejection:', err);
+});
+process.on('uncaughtException', (err) => {
+  console.error('uncaughtException:', err);
+});
