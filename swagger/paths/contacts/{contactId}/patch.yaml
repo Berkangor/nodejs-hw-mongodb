@@ -1,0 +1,38 @@
+tags: [Contacts]
+summary: Kişiyi güncelle
+operationId: updateContact
+description: contactId ile kişi alanlarını günceller. Fotoğraf için multipart/form-data kullanılır.
+security:
+  - bearerAuth: []
+parameters:
+  - in: path
+    name: contactId
+    required: true
+    schema: { type: string }
+requestBody:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        $ref: '#/components/schemas/ContactUpdate'
+responses:
+  '200':
+    description: Güncellendi
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            status: { type: integer, example: 200 }
+            message: { type: string, example: 'Contact updated successfully.' }
+            data: { $ref: '#/components/schemas/Contact' }
+  '400':
+    description: Doğrulama hatası
+    content:
+      application/json:
+        schema: { $ref: '#/components/schemas/ErrorResponse' }
+  '404':
+    description: Bulunamadı
+    content:
+      application/json:
+        schema: { $ref: '#/components/schemas/ErrorResponse' }

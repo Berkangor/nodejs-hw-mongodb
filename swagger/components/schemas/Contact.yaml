@@ -1,0 +1,27 @@
+type: object
+properties:
+  _id:
+    type: string
+    description: Mongo ObjectId
+    example: 64f0c7a1f2a3b4c5d6e7f8a9
+  name:
+    type: string
+    example: Alice
+  email:
+    type: string
+    format: email
+    example: alice@mail.com
+  phone:
+    type: string
+    example: '+90 555 444 33 22'
+  photo:
+    type: string
+    description: Cloudinary URL
+    example: https://res.cloudinary.com/demo/image/upload/v123456/contacts/abc.jpg
+  createdAt:
+    type: string
+    format: date-time
+  updatedAt:
+    type: string
+    format: date-time
+required: [_id, name, email, createdAt, updatedAt]

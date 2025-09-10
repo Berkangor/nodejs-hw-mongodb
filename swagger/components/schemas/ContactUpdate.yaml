@@ -1,0 +1,13 @@
+# PATCH /contacts/{contactId} için multipart/form-data body
+type: object
+properties:
+  name:
+    type: string
+  email:
+    type: string
+    format: email
+  phone:
+    type: string
+  photo:
+    type: string
+    format: binary

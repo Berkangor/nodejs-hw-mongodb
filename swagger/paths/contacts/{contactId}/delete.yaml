@@ -1,0 +1,19 @@
+tags: [Contacts]
+summary: Kişiyi sil
+operationId: deleteContact
+description: contactId ile kişiyi siler.
+security:
+  - bearerAuth: []
+parameters:
+  - in: path
+    name: contactId
+    required: true
+    schema: { type: string }
+responses:
+  '204':
+    description: İçerik yok (silindi)
+  '404':
+    description: Bulunamadı
+    content:
+      application/json:
+        schema: { $ref: '#/components/schemas/ErrorResponse' }

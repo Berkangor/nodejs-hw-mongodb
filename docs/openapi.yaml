@@ -1,0 +1,45 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Contacts API (Node.js Homework)
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  description: >
+    Öğrenci ödevi kapsamında Contacts API. Auth, e-posta ile şifre sıfırlama ve
+    Cloudinary üzerinden görsel yükleme içerir.
+tags:
+  - name: Auth
+    description: Kimlik doğrulama uçları
+  - name: Contacts
+    description: Kişi yönetimi uçları
+servers:
+  - url: http://localhost:3000
+  - url: https://nodejs-hw-mongodb-51-al0s.onrender.com
+paths:
+  /contacts:
+    get:
+      $ref: ../swagger/paths/contacts/get.yaml
+    post:
+      $ref: ../swagger/paths/contacts/post.yaml
+  /contacts/{contactId}:
+    get:
+      $ref: ../swagger/paths/contacts/{contactId}/get.yaml
+    patch:
+      $ref: ../swagger/paths/contacts/{contactId}/patch.yaml
+    delete:
+      $ref: ../swagger/paths/contacts/{contactId}/delete.yaml
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Contact:
+      $ref: ../swagger/components/schemas/Contact.yaml
+    ContactCreate:
+      $ref: ../swagger/components/schemas/ContactCreate.yaml
+    ContactUpdate:
+      $ref: ../swagger/components/schemas/ContactUpdate.yaml
+    ErrorResponse:
+      $ref: ../swagger/components/schemas/ErrorResponse.yaml

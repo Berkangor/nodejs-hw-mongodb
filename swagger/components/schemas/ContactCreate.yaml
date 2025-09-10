@@ -1,0 +1,17 @@
+# POST /contacts için multipart/form-data body
+type: object
+properties:
+  name:
+    type: string
+    example: Alice
+  email:
+    type: string
+    format: email
+    example: alice@mail.com
+  phone:
+    type: string
+    example: '+90 555 444 33 22'
+  photo:
+    type: string
+    format: binary
+required: [name, email]
