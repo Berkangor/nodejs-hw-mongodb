@@ -1,42 +1,24 @@
-import { Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
+
+const { Schema, model } = mongoose;
 
 const contactSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
-    phoneNumber: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-    },
-    isFavourite: {
-      type: Boolean,
-      default: false,
-    },
-    contactType: {
-      type: String,
-      enum: ['work', 'home', 'personal'],
-      required: true,
-      default: 'personal',
-    },
-    photo: {
-      type: String,
-    },
-    userId: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'users',
-    },
+    // Şemanıza göre 'userId' ya da 'owner' kullanın.
+    userId: { type: Schema.Types.ObjectId, ref: 'users', required: true },
+
+    name:  { type: String, required: true, trim: true },
+    email: { type: String, required: true, lowercase: true, trim: true },
+    phone: { type: String, trim: true },
+
+    photo: { type: String }, // Cloudinary URL
+
+    // İsterseniz:
+    contactType: { type: String, enum: ['personal', 'work'], default: 'personal' },
+    isFavourite: { type: Boolean, default: false },
   },
-  {
-    timestamps: true,
-    versionKey: false,
-  },
+  { timestamps: true, versionKey: false }
 );
 
-export const contactsCollection = model('Contact', contactSchema);
+// 🔴 DİKKAT: default değil, **named export**!
+export const Contact = model('contacts', contactSchema);
