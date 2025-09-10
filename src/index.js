@@ -1,12 +1,19 @@
+import 'dotenv/config';
 import { initMongoDB } from './db/initMongoConnection.js';
 import { startServer } from './server.js';
 
-await initMongoDB();
-startServer(); //because of new version of NODE.JS
+try {
+  await initMongoDB();
+  startServer(); // HTTP server'ı başlatır
+} catch (e) {
+  console.error('Failed to start server:', e);
+  process.exit(1);
+}
 
-// const bootstrap = async () => {
-//   await initMongoDB();
-//   startServer();
-// };
-
-// bootstrap();
+// (opsiyonel) Process-level güvenlik
+process.on('unhandledRejection', (err) => {
+  console.error('unhandledRejection:', err);
+});
+process.on('uncaughtException', (err) => {
+  console.error('uncaughtException:', err);
+});
