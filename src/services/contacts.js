@@ -1,4 +1,6 @@
-import Contact from '../db/models/contact.js';
+import { Contact } from '../db/models/contact.js'; // <- named import!
+
+const ALLOWED_SORT_FIELDS = new Set(['name', 'email', 'createdAt', 'updatedAt']);
 
 export const listContacts = async ({
   userId,
@@ -9,25 +11,33 @@ export const listContacts = async ({
   contactType,
   isFavourite,
 }) => {
-  const filter = { userId }; // ← sadece kendi kayıtları
+  // NOT: Şemanız 'owner' alanı kullanıyorsa burayı { owner: userId } yapın.
+  const filter = { userId };
+
   if (contactType) filter.contactType = contactType;
   if (typeof isFavourite === 'boolean') filter.isFavourite = isFavourite;
 
   const totalItems = await Contact.countDocuments(filter);
   const totalPages = totalItems === 0 ? 0 : Math.ceil(totalItems / perPage);
-  const safePage = totalPages === 0 ? 1 : Math.min(Math.max(Number(page), 1), totalPages);
-  const skip = (safePage - 1) * Number(perPage);
 
-  const sortDir = sortOrder === 'desc' ? -1 : 1;
+  const numericPage = Number(page) || 1;
+  const numericPerPage = Math.max(1, Number(perPage) || 10);
+
+  const safePage = totalPages === 0 ? 1 : Math.min(Math.max(numericPage, 1), totalPages);
+  const skip = (safePage - 1) * numericPerPage;
+
+  const safeSortBy = ALLOWED_SORT_FIELDS.has(String(sortBy)) ? String(sortBy) : 'name';
+  const sortDir = String(sortOrder).toLowerCase() === 'desc' ? -1 : 1;
+
   const data = await Contact.find(filter)
-    .sort({ [sortBy]: sortDir })
+    .sort({ [safeSortBy]: sortDir })
     .skip(skip)
-    .limit(Number(perPage));
+    .limit(numericPerPage);
 
   return {
     data,
     page: safePage,
-    perPage: Number(perPage),
+    perPage: numericPerPage,
     totalItems,
     totalPages,
     hasPreviousPage: safePage > 1,
@@ -36,23 +46,27 @@ export const listContacts = async ({
 };
 
 export const getContactById = async (contactId, userId) => {
+  // NOT: Şemanız 'owner' alanı kullanıyorsa { _id: contactId, owner: userId }
   return Contact.findOne({ _id: contactId, userId });
 };
 
 export const createContact = async (payload, userId) => {
+  // NOT: Şemanız 'owner' alanı kullanıyorsa { ...payload, owner: userId }
   const doc = new Contact({ ...payload, userId });
   return doc.save();
 };
 
 export const updateContact = async (contactId, payload, userId) => {
+  // NOT: Şemanız 'owner' alanı kullanıyorsa { _id: contactId, owner: userId }
   return Contact.findOneAndUpdate(
     { _id: contactId, userId },
     payload,
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   );
 };
 
 export const deleteContact = async (contactId, userId) => {
+  // NOT: Şemanız 'owner' alanı kullanıyorsa { _id: contactId, owner: userId }
   const res = await Contact.deleteOne({ _id: contactId, userId });
   return res.deletedCount > 0;
 };
