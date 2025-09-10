@@ -7,7 +7,8 @@ const router = Router();
 
 router.use('/contacts', contactsRouter);
 router.use('/auth', authRouter);
-router.use('/api-docs', docsRouter); // <— Swagger UI
+
+router.use(docsRouter); 
 
 router.get('/health', (_req, res) => res.json({ ok: true }));
 
