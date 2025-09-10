@@ -1,4 +1,4 @@
-import { Contact } from '../db/models/contact.js'; // <- named import!
+import { Contact } from '../db/models/contact.js'; // named import
 
 const ALLOWED_SORT_FIELDS = new Set(['name', 'email', 'createdAt', 'updatedAt']);
 
@@ -11,9 +11,7 @@ export const listContacts = async ({
   contactType,
   isFavourite,
 }) => {
-  // NOT: Şemanız 'owner' alanı kullanıyorsa burayı { owner: userId } yapın.
-  const filter = { userId };
-
+  const filter = { userId }; // Şemanız owner ise { owner: userId } yapın
   if (contactType) filter.contactType = contactType;
   if (typeof isFavourite === 'boolean') filter.isFavourite = isFavourite;
 
@@ -46,18 +44,15 @@ export const listContacts = async ({
 };
 
 export const getContactById = async (contactId, userId) => {
-  // NOT: Şemanız 'owner' alanı kullanıyorsa { _id: contactId, owner: userId }
   return Contact.findOne({ _id: contactId, userId });
 };
 
 export const createContact = async (payload, userId) => {
-  // NOT: Şemanız 'owner' alanı kullanıyorsa { ...payload, owner: userId }
   const doc = new Contact({ ...payload, userId });
   return doc.save();
 };
 
 export const updateContact = async (contactId, payload, userId) => {
-  // NOT: Şemanız 'owner' alanı kullanıyorsa { _id: contactId, owner: userId }
   return Contact.findOneAndUpdate(
     { _id: contactId, userId },
     payload,
@@ -65,9 +60,20 @@ export const updateContact = async (contactId, payload, userId) => {
   );
 };
 
+// PUT için upsert (varsa günceller, yoksa oluşturur)
+export const upsertContact = async (contactId, payload, userId) => {
+  // setDefaultsOnInsert: yeni doküman yaratılırsa şema defaultları uygulansın
+  return Contact.findOneAndUpdate(
+    { _id: contactId, userId },
+    { $set: { ...payload, userId } },
+    { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
+  );
+};
+
+// Controller 'patchContact' import ediyorsa alias veriyoruz
+export { updateContact as patchContact };
+
 export const deleteContact = async (contactId, userId) => {
-  // NOT: Şemanız 'owner' alanı kullanıyorsa { _id: contactId, owner: userId }
   const res = await Contact.deleteOne({ _id: contactId, userId });
   return res.deletedCount > 0;
 };
-export { updateContact as patchContact };
