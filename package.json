@@ -4,10 +4,10 @@
   "description": "",
   "main": "src/index.js",
   "type": "module",
-  "scripts": {
+   "scripts": {
     "start": "node src/index.js",
     "build": "npm run build-docs",
-    "build-docs": "redocly bundle --ext json -o docs/swagger.json",
+    "build-docs": "npx --yes @redocly/cli bundle docs/openapi.yaml --ext json -o docs/swagger.json",
     "preview-docs": "redocly preview-docs"
   },
   "repository": {
